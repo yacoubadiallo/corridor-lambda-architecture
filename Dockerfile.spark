@@ -2,7 +2,7 @@ FROM apache/spark:3.5.0
 
 USER root
 
-# Installation des outils Python pour le Machine Learning et Kafka
+# Installation des outils Python
 RUN apt-get update && apt-get install -y python3-pip && \
     pip3 install --upgrade pip && \
     pip3 install numpy pandas scipy scikit-learn pymongo kafka-python
@@ -11,8 +11,7 @@ RUN apt-get update && apt-get install -y python3-pip && \
 ENV SPARK_HOME=/opt/spark
 ENV PATH="$SPARK_HOME/bin:$PATH"
 
-# Cette variable permet à Spark de charger les connecteurs Kafka et MongoDB 
-# automatiquement lors de chaque spark-submit
-ENV PYSPARK_SUBMIT_ARGS="--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.mongodb.spark:mongo-spark-connector_2.12:10.2.1 pyspark-shell"
+# CORRECTION ICI : Passage à la version 10.3.0 pour MongoDB
+ENV PYSPARK_SUBMIT_ARGS="--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.mongodb.spark:mongo-spark-connector_2.12:10.3.0 pyspark-shell"
 
 WORKDIR /opt/spark

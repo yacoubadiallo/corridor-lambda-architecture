@@ -1,16 +1,29 @@
-# Spark & Kafka
+# --- Données du Projet & Volumes Docker ---
 data/
-checkpoints/
-checkpoint/
-derby.log
-metastore_db/
-spark-warehouse/
+mongo-data/
+# Capture tous les dossiers commençant par checkpoints
+checkpoints*/ 
+# Capture les dossiers d'archivage créés par Spark
+corridor_history/
+corridor_silver/
 
-# Python
+# --- Formats de données Big Data ---
+*.json
+*.parquet
+*.csv
+*.log
+
+# --- Python & Environnement ---
 __pycache__/
-*.pyc
-.venv/
-
-# Docker & OS
-.DS_Store
+*.py[cod]
+*$py.class
 .env
+venv/
+.venv/
+env/
+
+# --- Système & IDE ---
+.DS_Store
+.vscode/
+.idea/
+*.swp

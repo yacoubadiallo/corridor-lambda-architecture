@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   # ===================
-  # Zookeeper (Gestionnaire de la Haute Disponibilité)
+  # Zookeeper & Kafka
   # ===================
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -14,9 +14,6 @@ services:
     ports:
       - "2181:2181"
 
-  # ===================
-  # Kafka (Ingestion de flux de données)
-  # ===================
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
@@ -31,7 +28,7 @@ services:
       - "9092:9092"
 
   # ===================
-  # MongoDB (Stockage final des résultats)
+  # MongoDB & Interface Web
   # ===================
   mongodb:
     image: mongo:6.0
@@ -41,19 +38,41 @@ services:
     volumes:
       - mongo-data:/data/db
 
-  # Visualisation interface pour MongoDB
   mongo-express:
-    image: mongo-express
+    image: mongo-express:latest
     container_name: mongo-express
+    restart: always
     ports:
-      - "8082:8081"
+      - "8082:8081" # Accessible sur http://localhost:8082
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
     depends_on:
       - mongodb
 
   # ===================
-  # Spark Master 1 (Actif ou Standby)
+  # Streamlit Dashboard
+  # ===================
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    container_name: streamlit-dashboard
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/
+    ports:
+      - "8501:8501"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./apps:/opt/spark/apps
+    command: >
+      bash -c "pip install streamlit pymongo pandas && 
+               streamlit run /opt/spark/apps/app_visu.py --server.port=8501 --server.address=0.0.0.0"
+
+  # ===================
+  # Spark Cluster (Haute Disponibilité)
   # ===================
   spark-master-1:
     build:
@@ -64,17 +83,15 @@ services:
     environment:
       - SPARK_DAEMON_JAVA_OPTS=-Dspark.deploy.recoveryMode=ZOOKEEPER -Dspark.deploy.zookeeper.url=zookeeper:2181
     ports:
-      - "8080:8080"
-      - "7077:7077"
+      - "8080:8080" # Spark Master Web UI
+      - "7077:7077" # Spark Master Port
+      - "4040:4040" # Spark Application UI (Streaming Monitoring)
     depends_on:
       - zookeeper
     volumes:
       - ./data:/opt/spark/data
       - ./apps:/opt/spark/apps
 
-  # ===================
-  # Spark Master 2 (Actif ou Standby)
-  # ===================
   spark-master-2:
     build:
       context: .
@@ -84,7 +101,7 @@ services:
     environment:
       - SPARK_DAEMON_JAVA_OPTS=-Dspark.deploy.recoveryMode=ZOOKEEPER -Dspark.deploy.zookeeper.url=zookeeper:2181
     ports:
-      - "8081:8080"
+      - "8081:8080" # Spark Master 2 Web UI
       - "7078:7077"
     depends_on:
       - zookeeper
@@ -92,9 +109,6 @@ services:
       - ./data:/opt/spark/data
       - ./apps:/opt/spark/apps
 
-  # ===================
-  # Spark Workers (Les 5 unités de calcul)
-  # ===================
   spark-worker-1: &worker_base
     build:
       context: .
@@ -113,7 +127,7 @@ services:
   spark-worker-5: { <<: *worker_base, container_name: spark-worker-5 }
 
   # ===================
-  # Corridor Edge Node (Producteur Mali)
+  # Producteur (Edge Node)
   # ===================
   corridor-edge-node:
     build:
@@ -126,8 +140,5 @@ services:
       - ./apps:/opt/spark/apps
     command: python3 /opt/spark/apps/producer.py
 
-# ===================
-# Volumes persistants
-# ===================
 volumes:
   mongo-data:
