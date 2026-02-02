@@ -7,7 +7,7 @@
 ## 📝 Présentation
 Ce projet déploie une **Architecture Lambda** complète pour le monitoring de l'expérience client au sein des stations-service au Mali. Le système analyse la performance de l'ensemble des pôles d'activité (Carburant, Boutique, Lavage, Gaz).
 
-## 🖼️ Schéma de l'Architecture (Data Pipeline)
+## 🏗️ Flux de Données (Data Pipeline)
 
 ```mermaid
 graph LR
