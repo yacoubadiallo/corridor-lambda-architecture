@@ -28,17 +28,21 @@ L'infrastructure repose sur un environnement multi-conteneurs Docker simulant un
 ### 1. Lancement de l'infrastructure (Docker)
 ```bash
 docker-compose up -d --build
+
 2. Démarrage du Pipeline de Traitement
 Bash
 docker exec -it spark-master-1 spark-submit \
   --master spark://spark-master-1:7077,spark-master-2:7077 \
   --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.mongodb.spark:mongo-spark-connector_2.12:10.3.0 \
   /opt/spark/apps/sentiment_analysis.py
+
 3. Compactage vers le Data Lake (Batch Layer)
 Pour optimiser le stockage et préparer les données pour le Machine Learning :
 
 Bash
 docker exec -it spark-master-1 spark-submit /opt/spark/apps/compact_to_parquet.py
+
+
 Points d'accès Monitoring
 Dashboard Streamlit : http://localhost:8501
 
