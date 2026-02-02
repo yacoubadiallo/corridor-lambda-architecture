@@ -30,7 +30,7 @@ docker exec -it spark-master-1 spark-submit \
 
 
 3. Compactage vers le Data Lake (Batch Layer)
-Pour optimiser le stockage et préparer les données pour le Machine Learning :
+Optimisation du stockage et préparation des données pour le Machine Learning :
 
 Bash
 docker exec -it spark-master-1 spark-submit /opt/spark/apps/compact_to_parquet.py
@@ -43,9 +43,10 @@ docker exec -it spark-master-1 spark-submit /opt/spark/apps/compact_to_parquet.p
 
 🍃 Mongo Express : http://localhost:8082
 
+
 💡 Défis Techniques Relevés
-Haute Disponibilité : Cluster Spark configuré avec 2 Masters (via Zookeeper) et 5 Workers pour garantir la résilience.
+Haute Disponibilité : Cluster Spark configuré avec 2 Masters (via Zookeeper) et 5 Workers pour garantir la résilience du système.
 
-Schéma Évolutif : Ingestion JSON flexible permettant de traiter des services variés (Lavage, Gaz, Boutique) sans modification du code.
+Schéma Évolutif : Ingestion JSON flexible permettant de traiter des services variés (Lavage, Gaz, Boutique) sans modification du code source.
 
-Optimisation Storage : Migration vers le format Parquet (stockage colonnaire) pour réduire l'empreinte disque et accélérer les requêtes analytiques.
+Optimisation Storage : Migration vers le format Parquet (stockage colonnaire) pour réduire l'empreinte disque et accélérer les requêtes analytiques massives.
